@@ -1,4 +1,5 @@
 import { useState, MouseEvent } from 'react'
+import './App.css'
 
 interface Dot {
   x: number
