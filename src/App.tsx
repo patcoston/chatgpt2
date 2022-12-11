@@ -1,32 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React from 'react'
+import { Stage, Layer, Circle } from 'react-konva'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [dots, setDots] = React.useState([])
+  const [undoStack, setUndoStack] = React.useState([])
+
+  const handleClick = e => {
+    // get the coordinates of the click
+    const x = e.evt.layerX
+    const y = e.evt.layerY
+
+    // create a new dot at the click position
+    const dot = {
+      x,
+      y,
+    }
+
+    // add the new dot to the list of dots
+    setDots([...dots, dot])
+  }
+
+  const handleUndo = () => {
+    // remove the last dot from the list of dots
+    const newDots = dots.slice(0, -1)
+
+    // add the removed dot to the undo stack
+    setUndoStack([...undoStack, dots[dots.length - 1]])
+
+    // update the list of dots
+    setDots(newDots)
+  }
+
+  const handleRedo = () => {
+    // get the last dot from the undo stack
+    const dot = undoStack[undoStack.length - 1]
+
+    // remove the dot from the undo stack
+    const newUndoStack = undoStack.slice(0, -1)
+
+    // add the dot back to the list of dots
+    setDots([...dots, dot])
+
+    // update the undo stack
+    setUndoStack(newUndoStack)
+  }
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <div>
+      <button onClick={handleUndo}>Undo</button>
+      <button onClick={handleRedo}>Redo</button>
+      <Stage onClick={handleClick} width={500} height={500}>
+        <Layer>
+          {dots.map((dot, i) => (
+            <Circle key={i} x={dot.x} y={dot.y} radius={5} fill="black" />
+          ))}
+        </Layer>
+      </Stage>
     </div>
   )
 }
